@@ -1,75 +1,79 @@
 # Decoding and Conversion of Encrypted Data
 
-This project demonstrates the conversion of data between **Hexadecimal (Hex)**, **Unknown String**, and **ASCII Text** formats. It aims to showcase how cryptographic principles can be applied to decode and encode data securely for practical applications.
+This project demonstrates decoding and encoding data between **Hexadecimal (Hex)**, **Unknown String**, and **ASCII JSON** formats. The implemented Python code ensures secure and efficient conversions, particularly for JSON datasets.
 
 ---
 
 ## 🚀 Features
-- Conversion of **Hexadecimal** to **Unknown String**.
-- Decoding of **Unknown String** to **ASCII Text**.
-- Reverse conversion of **ASCII Text** to **Hexadecimal**.
-- Python-based implementation of encoding and decoding techniques.
-- Cryptographic relevance for secure data transmission.
+- Decode **Hexadecimal** to **Unknown String**.
+- Encode **Unknown String** back to **Hexadecimal**.
+- Convert **ASCII JSON Object** to **Hexadecimal** and back.
+- Validate the integrity of data through matching conversions.
+- JSON-based dataset processing.
 
 ---
 
 ## 📝 Problem Statement
-Data is often transmitted in encrypted formats like **unknown strings** to ensure security. These strings must be decoded to a readable format (e.g., **ASCII**) using **Hexadecimal** as an intermediary format. This project provides a solution to this problem using Python, enabling secure and efficient data conversion.
+In modern systems, encrypted data often requires decoding into human-readable formats. The challenge lies in accurately decoding **Hexadecimal** strings into **Unknown Strings**, validating conversions, and ensuring the integrity of the data. This project provides a robust solution using Python and cryptographic techniques.
 
 ---
 
 ## 📖 Concepts Used
-### 1. **Unknown String**
-- An encrypted or encoded text format, unreadable by humans.
-- Example: `"d8ab19d5c7a0f27c..."`
+### 1. **Hexadecimal (Hex)**
+   - A base-16 encoded representation of data.
+   - Example: `"7b2275726c223a226874747073..."`
 
-### 2. **Hexadecimal (Hex)**
-- A base-16 format that represents binary data in a human-readable way.
-- Example: `"7b2275726c223a226874747073..."`
+### 2. **Unknown String**
+   - A UTF-8 encoded or encrypted string derived from hexadecimal.
+   - Example: `"https://example.com/resource..."`
 
-### 3. **ASCII Text**
-- A human-readable character encoding standard.
-- Example: `{"url": "https://example.com", "hash": "0777fff783810100..."}`
-
----
-
-## ⚙️ Conversion Process
-1. **Hexadecimal to Unknown String**
-   - Decode the hex string into bytes.
-2. **Unknown String to ASCII Text**
-   - Parse the bytes into a readable JSON or text format.
-3. **ASCII Text to Hexadecimal**
-   - Encode the ASCII string back into hexadecimal for secure storage or transmission.
+### 3. **ASCII JSON Object**
+   - A serialized JSON object in ASCII format.
+   - Example: `{"url": "https://example.com", "key": "value"}`
 
 ---
 
-## 🛠️ Technologies Used
-- **Python**: Programming language for implementation.
-- **JSON**: Data serialization format.
-- **Cryptographic Libraries**: For encoding and decoding functions.
+## ⚙️ Conversion Techniques
+1. **Hex to Unknown**
+   - Convert a hex string into a byte object and decode it to UTF-8.
+2. **Unknown to Hex**
+   - Encode a UTF-8 string into hexadecimal format.
+3. **JSON to Hex**
+   - Serialize a JSON object, encode it into UTF-8, and convert to hex.
+4. **Hex to JSON**
+   - Decode a hex string to UTF-8, parse it back into a JSON object.
 
 ---
 
-## 💻 Code Example
-Here’s a Python snippet for the conversion process:
+## 💻 Code Implementation
+Here’s the Python implementation for the process:
 
 ```python
 import json
+import binascii
 
 def hex_to_unknown(hex_string):
-    return bytes.fromhex(hex_string).decode('utf-8')
+    return binascii.unhexlify(hex_string).decode('utf-8', 'ignore')
 
-def unknown_to_ascii(unknown_string):
-    return json.loads(unknown_string)
+def unknown_to_hex(unknown_string):
+    return binascii.hexlify(unknown_string.encode('utf-8')).decode('utf-8')
 
-def ascii_to_hex(ascii_string):
-    return ascii_string.encode('utf-8').hex()
+def json_to_hex(json_object):
+    json_string = json.dumps(json_object, separators=(',', ':'))
+    return unknown_to_hex(json_string)
 
-# Example Usage
-hex_data = "7b2275726c223a226874747073..."
-unknown = hex_to_unknown(hex_data)
-ascii_text = unknown_to_ascii(unknown)
-hex_again = ascii_to_hex(ascii_text)
-print(f"Original Hex: {hex_data}")
-print(f"Decoded ASCII: {ascii_text}")
-print(f"Re-encoded Hex: {hex_again}")
+def hex_to_json(hex_string):
+    decoded_string = hex_to_unknown(hex_string)
+    return json.loads(decoded_string) if decoded_string else None
+
+def process_dataset(dataset):
+    unknown_converted = hex_to_unknown(dataset['hex'])
+    hex_converted = unknown_to_hex(unknown_converted)
+    ascii_json_hex = json_to_hex(dataset['ascii_text'])
+    hex_and_ascii_match = hex_to_json(dataset['hex']) == dataset['ascii_text']
+
+    print(f"Hex to Unknown Conversion: {unknown_converted is not None}")
+    print(f"Unknown to Hex Conversion: {hex_converted is not None}")
+    print(f"Serialized ASCII to JSON string: {json.dumps(dataset['ascii_text'])}")
+    print(f"Converted ASCII JSON string to hex: {ascii_json_hex}")
+    print(f"Hex and ASCII match: {hex_and_ascii_match}")
